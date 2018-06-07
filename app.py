@@ -18,14 +18,17 @@ class HttpServerHandler(BaseHTTPRequestHandler):
     """
     # Handle request
     def do_GET(self):
-        _log.info("HttpServerHandler:%s %s" % (self.command, self.path))
+        _log.info("HttpServerHandler:%s %s, headers: '%s'" % (self.command, self.path, self.headers))
         self.send_response(200)
         return
 
     def do_POST(self):
-        length = int(self.headers['Content-Length'])
-        payload = self.rfile.read(length).decode('UTF-8')
-        _log.info("HttpServerHandler:%s %s '%s'" % (self.command, self.path, payload))
+        length = int(self.headers.get('Content-Length', '0'))
+        if length:
+            payload = self.rfile.read(length).decode('UTF-8')
+        else:
+            payload = None
+        _log.info("HttpServerHandler:'%s %s' payload: '%s', headers: '%s'" % (self.command, self.path, payload, self.headers))
 
         response = json.dumps(
             {
